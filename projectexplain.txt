@@ -1,0 +1,678 @@
+Minute 1-2: Introduction
+
+The project title is cybershieldweb:safeguarding web server through multi feature security model
+
+Primary objective -->
+
+The primary objective of this project is to safeguard web server and its associated database by integrating web application firewall like modsecurity and modevasive, system will prevents web-based attack.
+
+The addition of snort with barnyard will enhance intrusion detection and alerts to the administrator to potential threats.
+
+Configuring xtable-addons for geoip blocking its a great defence mechanism by preventing access from specified geographic location.
+
+Furthermore, the corporation of fail2ban increases the security by automating the response of suspecious activity.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 3-4: The Need for Web Server Security
+
+todays rapidly changing world the security of web servers is very important because most of the bad attacker will attack on web server and disrupt the services , and also intruders will take out some sensitive data form the server it may be users data who is visiting the website or it may be employers data who is working in the company.
+
+the user who is visiting the website he has to be sign in with his personal information like name and date of birth , the user will trust the website and put the information , but if any intruder hacks the server and taken out some users sensitive data , then it will break the trust between a user and the website...
+
+so thats why the security of the web server is very important of todays digital landscape
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 5-6: Project Overview
+
+lets briefly touch to the overview of the project
+
+i will briefly describe the core component of the project which is web application firewall, snort , barnyard, iptable ,  xtable-addons , fail2ban.....
+
+we have take one debian 10 system after that we have install the apache2 web server in the system and hosted portfolio website which is my msc final year project , for the database we have installed maria-db server after installing the maria-db server i loogged in as a root user after logged in i created one user for the web server database which name as sahil after that we create a database name as sahil after creating the database we give all the privileges to the user sahil on database sahil , after that i logged in as a user sahil and create a table for the form of the website...there are three fields in the form first one is name second one is mail and the third one is message 
+
+after creating the table i have write php code for fetching the data from website and will sends to the database 
+
+............................................................................................................................................................
+
+thereafter we have implement the two web application firewall which is modsecurity and modevasive
+
+*modsecurity is a open-source web application firewall which is used in linux base systems to protect web server from intruders and also it will prevent a web server from xss , sql injection , remote file inclusions*
+
+$$modsecurity configuration$$
+
+sudo apt-get install libapache2-mod-security2 -y
+
+sudo a2enmod security2
+
+sudo systemctl restart apache2
+
+sudo mv /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
+
+sudo nano /etc/modsecurity/modsecurity.conf
+
+
+SecRuleEngine On 
+
+search secauditlogparts and change
+
+SecAuditLogParts ABCEFHJKZ
+
+
+sudo systemctl restart apache2
+
+
+//for checking logs//
+sudo tail -f /var/log/apache2/modsec_audit.log 
+
+
+
+
+*modevasive firewall for ddos attack prevention*
+
+To configure ModEvasive on Debian 10, you'll need to install the necessary packages and then modify the configuration files to suit your specific needs. Here's a general guide on how to do this:
+
+Install ModEvasive:
+
+Open a terminal on your Debian 10 system and run the following commands to install ModEvasive:
+
+sudo apt update
+sudo apt install libapache2-mod-evasive
+Configure ModEvasive:
+
+Once the package is installed, you'll need to configure ModEvasive by editing its configuration file.
+
+sudo nano /etc/apache2/mods-available/evasive.conf
+Modify the settings according to your requirements. Here's a sample configuration you can use as a starting point:
+
+
+<IfModule mod_evasive20.c>
+    DOSHashTableSize 3097
+    DOSPageCount  2
+    DOSSiteCount  50
+    DOSPageInterval  1
+    DOSSiteInterval  1
+    DOSBlockingPeriod  10
+    DOSLogDir   /var/log/mod_evasive
+</IfModule>
+DOSHashTableSize: The size of the hash table used to store IP addresses and URLs. You can adjust this based on your server's expected traffic.
+DOSPageCount: Maximum number of requests for a specific page within the DOSPageInterval before an IP is blocked.
+DOSSiteCount: Maximum number of requests for any object by the same IP on the same site within the DOSSiteInterval before an IP is blocked.
+DOSPageInterval: Time interval (in seconds) for counting requests for a specific page.
+DOSSiteInterval: Time interval (in seconds) for counting requests for any object by the same IP on the same site.
+DOSBlockingPeriod: The amount of time (in seconds) that an IP will be blocked when it exceeds the request thresholds.
+DOSLogDir: Directory where ModEvasive logs will be stored.
+Enable ModEvasive:
+
+After configuring ModEvasive, enable the module and restart Apache to apply the changes.
+
+sudo a2enmod evasive
+sudo systemctl restart apache2
+Monitor Logs:
+
+Monitor the ModEvasive logs to see if any IPs are being blocked and to assess the effectiveness of your configuration.
+
+sudo tail -f /var/log/mod_evasive/*
+Remember that these settings are just a starting point. You should adjust them based on your server's actual usage patterns and your specific security requirements. Additionally, always keep your system and packages up to date for optimal security.
+
+
+
+Inside the script, paste the following code:
+
+#!/bin/bash
+
+for i in {1..100}
+do
+   curl http://localhost/
+done
+
+
+
+sudo tail -f /var/log/apache2/error.log  (for checking which ip are trying to do dos attack)
+
+
+
+
+---------------------------------------------------configuration of snort as an ids-------------------------------------------------------------------------
+
+
+Install Dependencies :
+
+$sudo apt-get install \
+>bison (Bison is a parser generator, a replacement for yacc. Bison generates a program
+that analyzes the structure of a text file)
+>flex (The Flex package is used to generate programs which recognize patterns in text.)
+>gcc(compiler)
+>libdnet
+>libdumbnet-dev()
+>libluajit-5.1-dev (to run lua statement)
+>libnghttp2-dev
+>libpcap-dev
+>libpcre3-dev
+>libssl-dev
+>make
+>openssl
+>wget
+>zlib1g-dev
+
+////////2) Download and instal DAQ(Data acquisation library)//////
+The DAQ in Snort is like a helper tool that helps Snort, a security system, talk to different types of networks. Imagine Snort as a detective trying to watch for bad guys in a busy city. The DAQ is like the detective's assistant, helping the detective see what's happening on different streets.
+
+The DAQ is useful because it can work with many different ways of looking at the city. It can understand information from real-time streets, like seeing what cars are driving by. It can also look at recordings of past streets, like watching a video of what happened yesterday. It can even work with special tools that make the detective's job faster.
+
+Once the DAQ helps the detective gather information from the streets, the detective looks at it closely to see if anything bad is happening. If the detective finds something suspicious or harmful, like a bad guy trying to do something bad, the detective takes action to stop it.
+
+So, in simple words, the DAQ is like the detective's helper that gathers information from different places to help the detective catch bad guys and keep the city safe.
+
+
+
+
+
+$mkdir -p /usr/src/snort_src
+$cd /usr/src/snort_src
+$sudo wget http://192.168.1.251/sw/sec_tools/ids/snort/daq-2.0.6.tar.gz
+$sudo tar -zxf daq-2.0.6.tar.gz
+$cd daq-2.0.6.tar.gz
+$ls -l
+$make
+$sudo make install
+
+
+
+
+Don’t download snort on daq create a snort user.
+$sudo mkdir -p /usr/src/snort_src
+$cd /usr/src/snort_src
+$sudo wget http://192.168.1.251/sw/sec_tools/ids/snort/snort-2.9.15.tar.gz
+$sudo tar zxf snort-2.9.15.tar.gz
+$cd snort-2.9.15
+$ls -l ( check whther conf file is there or not )
+$sudo ./configure
+$sudo make
+$sudo make-install
+
+
+
+$sudo ldconfig (ldconfig updates the cache for the linker in a UNIX environment with
+libraries found in the paths specified in)
+
+
+
+Creation of user
+$sudo groupadd snort
+$sudo useradd snort -r -s /usr/sbin/nologin -c SNORT_IDS -g snort
+-r system account
+-s shell
+-c comment
+-g group
+
+
+
+Creation of folder for snort
+$sudo mkdir -p /etc/snort/rules
+$sudo mkdir /var/log/snort
+$sudo mkdir /usr/local/lib/snort_dynamicrules
+
+
+
+Create Rules file :
+$sudo cd /etc/snort/rules
+$touch white_list.rules
+$touch black_list.rules
+$touch local.rules
+
+
+
+Giving permission and change owner :
+$sudo chmod -R 5775 /etc/snort
+$sudo chmod -R 5775 /var/log/snort
+$sudo chmod -R 5775 /usr/local/lib/snort_dynamicrules
+$sudo chown -R snort:snort /etc/snort
+$sudo chwon -R snort:snort /var/log/snort
+$sudo chown -R snort:snort /usr/local/lib/snort_dynamicrules
+
+
+
+Conf file :
+$sudo cp /etc/snort/snort.conf /etc/snort/snort.conf.backup
+$sudo nano snort.conf
+1St alter: change windows path to linux path . (line 104...)
+
+2nd alter: assign path
+
+3rd alter:
+Sequence 7 delete all existing path and add this three path
+
+
+
+
+Testing
+$sudo snort -T -C /etc/snort/snort.conf
+
+///for sql injection///
+alert tcp any any -> 192.168.1.92 80 (msg:"SQL Injection Attempt"; flow:to_server,established; content:"';"; http_uri; nocase; classtype:web-application-attack; sid:100001;)
+
+//for xss//
+alert tcp any any -> 192.168.1.92 80 (msg:"Possible XSS Attack"; flow:to_server,established; content:"<script>"; http_uri; nocase; classtype:web-application-attack; sid:100002;)
+
+///Detect PHP Remote File Inclusion Attempts:///
+
+alert tcp any any -> 192.168.1.92 80 (msg:"Possible PHP Remote File Inclusion Attempt"; flow:to_server,established; content:"include("; http_uri; content:".php"; http_uri; nocase; classtype:web-application-attack; sid:100005;)
+
+
+////Detect Brute-Force Login Attempts////
+
+alert tcp any any -> 192.168.1.92 80 (msg:"Possible Brute-Force Login Attempt"; flow:to_server,established; content:"POST"; http_method; content:"login"; http_uri; nocase; threshold:type threshold, track by_src, count 5, seconds 60; classtype:web-application-attack; sid:100004;)
+
+
+
+
+Run snort :
+$sudo snort -i ens33 -u snort -g snort -c /etc/snort/snort.conf -A console
+
+
+-------------------------------------------------------------------barnyard---------------------------------------------------------------------------------
+
+Barnyard is a companion application that works in conjunction with Snort, an open-source intrusion detection and prevention system. Barnyard helps manage and process the alerts generated by Snort, allowing for more efficient storage, analysis, and management of intrusion detection data. It acts as a "post-processor" for Snort alerts.
+
+Here's how Barnyard typically works with Snort:
+
+Alert Generation: Snort analyzes network traffic and generates alerts when it detects suspicious or malicious activity based on the configured rules.
+
+Alert Output: Instead of managing and processing the alerts directly, Snort can output the generated alerts in binary Unified2 format. This format provides a more streamlined and efficient way to store alert data compared to the traditional ASCII text format.
+
+Barnyard Processing: Barnyard reads the Unified2 output generated by Snort and processes it. It extracts the alert information, transforms it into a human-readable format, and then forwards it to various destinations, such as a database, syslog, or another log management system.
+
+Storage and Analysis: By offloading the alert processing to Barnyard, Snort can continue analyzing network traffic without being bogged down by alert management tasks. Barnyard facilitates the storage and analysis of alert data, making it easier for security analysts to review and respond to potential threats.
+
+Barnyard was developed to improve the performance and efficiency of Snort-based intrusion detection systems by separating the alert generation from the alert management process. It's worth noting that the development and support for Barnyard have slowed down in recent years, and some alternative approaches and tools have emerged for managing Snort alerts, including the use of tools like PulledPork, Sagan, and custom scripts to process and analyze alert data.
+
+
+install dependencies
+
+$sudo apt-get install \
+>autoconf
+>make
+>unzip
+>mariadb-client
+>libmariadb-dev
+>mariadb-server
+>libtool
+>libmariadbclient-dev
+>default-libmysqlclient-dev
+>dos2unix
+
+
+We tell snort to generate data in u2b format by editing it in snort.conf
+$sudo nano etc/snort/snort.conf
+Add: output unified2: filename snort.u2 ,limit 128
+
+
+
+Now enter into tmp to download barnyard:
+$cd tmp
+$wget http://192.168.1.251/sw/sec_tools/ids/snort/barnyard2-master.zip
+$unzip barnyard2-master.zip
+$cd barnyard2-master
+$ls -l
+There is no configuration file present for configuration file autogen searches for dnet file
+which is not present hence we create dnet file , we have dumbnet.h file hence we shall
+create soft link of it .
+$sudo ln -s /usr/include/dumbnet.h /usr/include/dnet.h
+$./autogen.sh (it will search for header file and will find dnet file and wil configure )
+$sudo ./configure --with-mysql --with-mysql-libraries = /usr/lib/x86_64-linux-gnu (as there are numerous databases we specify database which we are using)
+
+$sudo make
+$sudo make install
+$sudo which banyard2 (varify the path )
+$sudo cp etc/barnyard2.conf /etc/snort
+$sudo mkdir /var/log/banyard2 (creation of folder banyard)
+$sudo chown snort:snort /var/log/barnyard2
+$sudo touch /var/log/snort/barnyard2.waldo (creation of waldo file )
+Waldo file:Its like a bookmark for example if we run snort it makes entries and when
+we restart snort it alerts snort to start from there .
+$sudo chown snort:snort /var/log/snort/barnyard2.waldo
+
+
+------------------------------------------------------------mysql-----------------------------------------------------------------------------------------
+
+MYSQL:
+$sudo mysql -u root -p
+>>CREATE DATABASE , IF NOT EXIST snort;
+>>USE SNORT ;
+Instead of creating database from scratch there are templates in schemas of
+oracle ,microsoft we can directly use that .
+>>SOURCE /tmp/barnyard2-master/schemas/create_mysql
+If error 2 comes mention full path I.e home /shuhar/tmp
+
+>>CREATE user ‘snort’@’localhost’ IDENTIFIED by ‘rootroot’
+>>GRANT CREATE , INSERT , SELECT,DELETE,UPDATE on snort.* to ‘snort’@’localhost’
+>>exit
+
+Now we will edit barnyard.conf file and let it know that we have created a databse.
+$sudo nano /etc/snort/barnyards.conf
+Add in last
+Output database: log, mysql, user=snort pasword=rootroot dbname=snort
+host=localhost
+
+
+--------------------------------------------------------------sidmap.pl----------------------------------------------------------------------------------
+
+
+The sidmap.pl script is used in conjunction with Barnyard2, which is an alternative to the original Barnyard application for processing Snort alerts. Barnyard2 is designed to handle the output from Snort and efficiently forward it to various output formats and storage solutions, such as databases and log management systems.
+
+The sidmap.pl script, also known as "SID-to-Name Mapping Script," is used to translate Snort's rule IDs (also known as SIDs or Signature IDs) into their corresponding rule names. When Snort generates an alert, it includes the unique ID of the rule that triggered the alert. These IDs are not very human-friendly, as they are just numeric values. The sidmap.pl script takes these rule IDs as input and looks up their corresponding rule names from Snort's rule files.
+
+The purpose of this script is to enhance the readability of Snort alerts. Instead of just seeing a numeric ID in an alert, analysts can see the actual rule name that triggered the alert, which provides them with more context about the detected activity.
+
+Here's a general overview of how the sidmap.pl script works in combination with Barnyard2:
+
+Alert Generation: Snort detects network traffic that matches its configured rules and generates alerts.
+
+Barnyard2 Processing: Barnyard2 processes these alerts and extracts the rule IDs that triggered each alert.
+
+sidmap.pl Execution: The sidmap.pl script is executed to translate the rule IDs into their corresponding rule names. This script looks up the rule names from Snort's rule configuration files.
+
+Enhanced Alert Output: The enhanced alerts, now including the rule names alongside the IDs, are then forwarded to the configured output destinations, such as databases or log files.aq
+
+This process helps analysts quickly understand which specific rule triggered a particular alert without having to manually cross-reference rule IDs with rule names.
+
+It's important to note that the specifics of using the sidmap.pl script and Barnyard2 might vary based on the version of Snort, Barnyard2, and the particular setup you're using. If you're working with these tools, it's a good idea to consult the relevant documentation for accurate instructions and details.
+
+
+
+
+
+
+$cd tmp
+$wget http://192.168.1.251/sw/sec_tools/ids/snort/create-sidmap.pl
+$./ create-sidmap.pl /etc/snort/rules
+$sudo sh -c “./create-sidmap.pl /etc/snort/rules > /etc/snort/sid-msg.map”
+Now duplicate the session and let this command run continously .
+Verify that u2 file is generated or not.
+Tmp$ls -l /var/log/snort
+$sudo snort -q -u snort -g snort -c /etc/snort/snort.conf
+
+Tmp$ls -l /var/log/snort (u2 file should be visible now )
+Duplicat the session and let this command run on it
+
+
+
+
+Run Barnyard
+$sudo barnyard2 -c /etc/snort/barnyard2.conf -d /var/log/snort/ -f snort.u2 -w /var/log/snort/barnyard.waldo -g snort -u snort
+
+
+
+Go to maria db and search entries in iphdr table..
+
+
+
+-----------------------------------------------------------------GEO IP BLOCKING USING XTABLE---------------------------------------------------------------
+
+
+
+GeoIP blocking using xtables-addons is a method to filter or block network traffic based on the geographical location of IP addresses. The xtables-addons package provides extra extensions for iptables, including the xt_geoip module that allows you to match IP addresses against a GeoIP database and apply firewall rules accordingly.
+
+Here's a general overview of how you can set up GeoIP blocking using the xtables-addons and xt_geoip module:
+
+Install xtables-addons:
+First, you need to install the xtables-addons package on your system. This package might not be available in all Linux distributions' official repositories, so you might need to install it from a third-party source.
+
+Download GeoIP Database:
+You will need a GeoIP database to perform IP address to geographical location lookups. One popular source for such databases is MaxMind. You can download the database files from MaxMind's website.
+
+Compile xt_geoip Module:
+After installing xtables-addons, you might need to compile the xt_geoip module using the downloaded GeoIP database files. This step depends on the specific instructions provided by the package and your Linux distribution.
+
+Load xt_geoip Module:
+Once compiled, you need to load the xt_geoip module into the kernel:
+
+modprobe xt_geoip
+Create Firewall Rules:
+Now you can create iptables rules using the xt_geoip module to match IP addresses based on their geographical location. For example, to block traffic from a specific country:
+
+
+iptables -A INPUT -m geoip --src-cc CN -j DROP
+iptables -A INPUT -m geoip --src-cc PK -j DROP
+You can also use this module in conjunction with other match criteria, targets, and chains as needed.
+
+
+
+
+$sudo apt-get update
+$uname -r (It will show 5th version)
+
+$uname -r (latest version)
+$sudo apt search linux-headers-$(uname -r)
+$sudo apt-get dist-upgrade (update to latest version)
+$sudo reboot
+$sudo apt search linux-headers-$(uname -r) (now file must be shown )
+
+
+*now install dependencieS*
+
+$sudo apt-get install\
+> automake\
+>ca-certificates\
+>gcc\
+>iptables-dev\
+>libc6-dev\
+>libnet-cidr-lite-perl\
+>libtext-csv-xs-perl\
+>linux-headers-$(uname -r)\
+>make\
+>pkg-config\
+>unzip\
+>wget\
+>xz-utils -y
+
+
+
+
+*install xtable-addons*
+
+Creation of tmp folder
+mkdir xtable
+cd xtable
+
+git clone https://github.com/infinet/xtables-addons.git
+
+$./configure (testing)
+$sudo make (it compiles the file and makes command executable)
+$sudo make install
+$cd ( return to home dir and make folder xtables)
+$/usr/local/libexec/xtables-addons/xt_geoip_dl (
+$ls -l (verify)
+$sudo mkdir /usr/share/xt_geoip (making of folder )
+
+
+Processing xt_geoip to xtables_geoip only csv files.
+$sudo /usr/local/libexec/xtables-addons/xt_geoip_dl -D /usr/share/xtables_geoip/*.csv
+
+$sudo /usr/local/libexec/xtables-addons/xt_geoip_build -D /usr/share/xtables_geoip/*.csv
+Xt_geoip is a file which tells ip ranges of country but this data is not supported by linux
+version so we need to change the datatype thatswhy we run this command of proces in
+which data becomes compatible with desired version.
+$ls -l/usr/share/xt_geoip/
+$sudo iptables -m geoip -h( not successful as geoip is not loaded)
+$sudo depmod -a (it update the dependecies )
+$sudo iptables -m geoip -h (successful)
+
+
+now create a shell file for iptables
+and add rule in that file
+
+
+
+iptables -F
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+# Block Chinese traffic
+iptables -A INPUT -m geoip --src-cc CN -j DROP
+# Block Pakistani traffic
+iptables -A INPUT -m geoip --src-cc PK -j DROP
+iptables -L
+
+
+Persist Rules:
+To make these rules persistent, you need to save your iptables rules to a file and configure your system to load them on boot. The exact method depends on your Linux distribution.
+
+As an example, on a Debian-based system, you can use the iptables-save command to save your rules to a file, and then use iptables-restore to load them during startup:
+
+iptables-save > /etc/iptables/rules.v4
+You would also need to add a line to load these rules from the file in your system's startup configuration.
+
+
+
+////for persistent///
+
+
+ sudo apt-get install iptables-persistent
+ sudo systemctl enable netfilter-persistent
+ sudo systemctl start netfilter-persistent
+
+
+$sudo sh -c "iptables-save > /etc/iptables/rules.v4"(we are elevating sh to root by using
+sudo now we are trying to append iptables-save to that path which is in root I.e we are
+appending content of iptables save file I.e in non root to root user which is not allowed
+thatswhy we mention that in “” it makes both different user command as one command.
+For this we always need rules.v4 file because it is the config file of persistence .)
+
+
+$ sudo sh -c "iptables-restore"</etc/iptables/rules.v4
+
+
+
+..............................................................FAIL2BAN....................................................................................
+
+
+Fail2Ban is an open-source intrusion prevention software framework that helps protect computer servers from brute-force attacks and other types of malicious activity. It operates by monitoring log files generated by various services, such as SSH, FTP, Apache, and more, for signs of suspicious or unauthorized behavior. When it detects repeated failed login attempts or other predefined patterns that indicate malicious activity, it takes action to block the offending IP addresses from accessing the server.
+
+Here's how Fail2Ban typically works:
+
+Log Monitoring: Fail2Ban continuously monitors log files generated by various services. These logs contain information about login attempts, access requests, and other activities on the server.
+
+Pattern Matching: Fail2Ban uses regular expressions and predefined patterns to identify specific events, such as repeated failed login attempts, HTTP error codes, and more. These patterns are defined in configuration files.
+
+Thresholds: The software tracks the occurrence of events that match the predefined patterns. If the number of occurrences exceeds a specified threshold within a defined time period, Fail2Ban considers it as a potential attack.
+
+Action: Once an attack is detected, Fail2Ban can perform various actions. The most common action is to dynamically update firewall rules (e.g., iptables on Linux) to block traffic from the source IP address. This prevents the attacker from further accessing the server.
+
+Temporary Bans: Fail2Ban usually imposes temporary bans. After a certain amount of time (configurable), the ban is lifted, allowing legitimate traffic from that IP address to resume.
+
+Notification: Fail2Ban can also send notifications to administrators when it takes action against an IP address. This helps administrators stay informed about potential security threats.
+
+Fail2Ban is highly configurable, and administrators can define their own custom filters, actions, and ban periods based on their server's requirements and the types of attacks they want to mitigate. It's important to note that while Fail2Ban can be an effective tool in preventing certain types of attacks, it should be used as part of a broader security strategy that includes regular software updates, strong authentication mechanisms, and other security practices.
+
+
+
+$sudo apt-get install fail2ban
+$sudo fail2ban-client status (to get number of jail list)
+$sudo fail2ban-client status sshd (only ssh status )
+$sudo fail2ban-client get sshd bantime ( display bantime )
+$sudo watch fail2ban-client status ( to watch live updation )
+
+
+There is a config file where we can do updation according to our requirements .
+$sudo nano /etc/fail2an/jail.conf
+
+
+if anyone did brute forcing then it will shows if enter following command
+
+$sudo fail2ban-client status sshd (only ssh status)
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Minute 7-8: Key Features
+
+
+1)multi-layered security stack -> the project aim is to provide security on network layer and application layer
+
+2)real time threat detection using snort -> the snort mechanism will detect threats and anomalies usind signature based attack and defined rules and will save to the database using barnyard for later investigation 
+
+3)adaptive firewall rules with ip table and xtable addons -> china and pakistan is enemies of india so we block both of them
+
+4)Automated response mechanisms with Fail2ban -> if any intruder did brute force on server so the ip will get block by fail2ban
+
+all of this features are collectively strengthen the security of web server
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 9: Benefits and Impact
+
+
+1)Enhanced protection against a wide range of threats
+
+2)Real-time threat detection and response
+
+3)Reduced risk of unauthorized access
+
+4)Data integrity, user confidentiality, and business continuity
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 10: Future Enhancements and Conclusion
+
+1)we have to create one backup server
+
+2)we have to create one database backup server
+
+3)if we create backup server then we must have to imposed the transport layer security
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo mysql -u root -p
+
+CREATE USER 'your_username'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON your_database_name.* TO 'your_username'@'localhost';
+
+
+USE your_database;
+
+CREATE TABLE sahil (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL
+);
+
+for checking in database -->
+
+SELECT * FROM table name ;
+
+
+
+
+mysqldump -u your_username -p your_database > backup.sql
+
+
