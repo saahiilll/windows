@@ -1,0 +1,96 @@
+introduction,need for web server security, overview , key features , benefits and impact , future enhancement  
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 1-2: Introduction
+
+The project title is cybershieldweb:safeguarding web server through multi feature security model
+
+Primary objective -->
+
+The primary objective of this project is to safeguard web server and its associated database by integrating web application firewall like modsecurity and modevasive, system will prevents web-based attack from this two firewall.
+
+The addition of snort with barnyard will enhance intrusion detection and alerts to the administrator to potential threats.
+
+Configuring xtable-addons for geoip blocking its a great defence mechanism by preventing access from specified geographic location.
+
+Furthermore, the corporation of fail2ban increases the security by automating the response of suspecious activity.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 3-4: The Need for Web Server Security
+
+todays rapidly changing world the security of web servers is very important because most of the bad attacker will attack on web server and disrupt the services , and also intruders will take out some sensitive data form the server it may be users data who is visiting the website or it may be employers data who is working in the company.
+
+the user who is visiting the website he has to be sign in with his personal information like name and date of birth , the user will trust the website and put the information , but if any intruder hacks the server and taken out some users sensitive data , then it will break the trust between a user and the website...
+
+so thats why the security of the web server is very important of todays digital landscape
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 5-6: Project Overview
+
+1)install apache and mariadb server
+2)hosted website , index.html , style.css , process.php
+
+@@web application firewall@@
+1)modsecurity
+2)modevasive
+
+@snort@(surikata , bro)
+1)daq
+2)snort
+3)barnyard(sagan)
+4)mysql
+5)sidmap.pl
+
+@@xtable-addons@@ (fail2ban , iptable)
+persistent
+
+@@fail2ban@@(ssh guard)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 7-8: Key Features
+
+
+1)multi-layered security stack -> the project aim is to provide security on network layer and application layer
+
+2)real time threat detection using snort -> the snort mechanism will detect threats and anomalies using signature based attack and defined rules and will save to the database using barnyard for later investigation 
+
+3)adaptive firewall rules with ip table and xtable addons -> china and pakistan is enemies of india so we block both of them
+
+4)Automated response mechanisms with Fail2ban -> if any intruder did brute force on server so the ip will get block by fail2ban
+
+all of this features are collectively strengthen the security of web server
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 9: Benefits and Impact
+
+
+1)Enhanced protection against a wide range of threats
+
+2)Real-time threat detection and response
+
+3)Reduced risk of unauthorized access
+
+4)Data integrity, user confidentiality, and business continuity
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Minute 10: Future Enhancements
+
+1)we have to configure some backup server , because right now we have only one server if the server will fail then the service will dissrupt ,  so we can configure multiple servers for this issue.
+
+2)we have to create one database backup server , right now we are backing up data on regular basis , after configuring the backup database server , the data will automatically backed up on the second server.
+
+3)if we configure multiple server then we must have to imposed the transport layer security on the servers ...because most of the attack will happen when two servers will exchange their data by using transport layer.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
